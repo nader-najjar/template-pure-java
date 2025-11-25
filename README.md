@@ -8,7 +8,10 @@
 * Runs unit tests
 
 ### `./universal-build help`
-* Invokes Gradle's help command, showing available tasks
+* Invokes Gradle's help command, showing basic functionality
+
+### `./universal-build tasks`
+* Invokes Gradle's tasks command, showing all available tasks
 
 
 ## Workflows
