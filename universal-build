@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 # Universal build entrypoint for template repos.
 # Benefits:
-# - Single command (`./universal-build.sh`) for all stacks; only prerequisite is Nix.
+# - Single command (`./universal-build`) for all stacks; only prerequisite is Nix.
 # - Toolchains come from Nix; language-native build tools stay idiomatic (e.g., Gradle, Poetry, pnpm).
 # - Deterministic: flake/lock pin tool versions; wrappers/lockfiles pin language deps; same env on macOS/Linux.
 # - CI/dev parity: runs the same `nix develop` environment everywhere, then dispatches to the repo’s build command.

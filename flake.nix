@@ -20,7 +20,7 @@
             ];
 
             shellHook = ''
-              export JAVA_HOME=${pkgs.jdk24_headless}/lib/openjdk
+              export JAVA_HOME=${pkgs.jdk24_headless}
               export GRADLE_OPTS="-Dorg.gradle.jvmargs=-Xmx1g -Dfile.encoding=UTF-8"
               echo "Using Nix dev shell with OpenJDK ${pkgs.jdk24_headless.version} (headless)"
             '';
