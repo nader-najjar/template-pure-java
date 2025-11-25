@@ -14,8 +14,8 @@ NIX_FLAGS="--extra-experimental-features nix-command --extra-experimental-featur
 
 usage() {
   echo "Usage:" >&2
-  echo "  $0 --update-flake            # update nix flake lockfile" >&2
-  echo "  $0 <gradle-task> [tasks...]  # run gradle tasks inside nix dev shell" >&2
+  echo "  $0 --update-nix-flake                 # update nix flake lockfile" >&2
+  echo "  $0 <idiomatic-build-task> [tasks...]  # run idiomatic build tasks inside the nix dev shell" >&2
   exit 1
 }
 
@@ -26,7 +26,7 @@ require_nix() {
   fi
 }
 
-print_gradle_cmd() {
+print_build_start_log() {
   printf "Starting Java Gradle build with: ./gradlew"
   for arg in "$@"; do
     printf " %s" "$arg"
@@ -34,15 +34,14 @@ print_gradle_cmd() {
   printf "\n"
 }
 
-update_flake() {
+update_nix_flake() {
   echo "Updating nix flake lock in ${SCRIPT_DIR}"
   nix ${NIX_FLAGS} flake update "${SCRIPT_DIR}"
-  printf "\033[32mBUILD SUCCEEDED\033[0m\n"
 }
 
 gradle_build() {
-  print_gradle_cmd "$@"
-  exec nix ${NIX_FLAGS} develop "${SCRIPT_DIR}" --command sh -c 'cd "$1" && shift && ./gradlew "$@" && printf "\033[32mBUILD SUCCEEDED\033[0m\n"' _ "${SCRIPT_DIR}" "$@"
+  print_build_start_log "$@"
+  exec nix ${NIX_FLAGS} develop "${SCRIPT_DIR}" --command sh -c 'cd "$1" && shift && ./gradlew "$@"' _ "${SCRIPT_DIR}" "$@"
 }
 
 main() {
@@ -52,17 +51,17 @@ main() {
     usage
   fi
 
-  # Guard against misplaced --update-flake so it never reaches Gradle.
-  if printf '%s\n' "$@" | grep -q -- '^--update-flake$'; then
+  # Guard against misplaced --update-nix-flake so it never reaches the idiomatic build system.
+  if printf '%s\n' "$@" | grep -q -- '^--update-nix-flake$'; then
     if [ "$#" -ne 1 ]; then
-      echo "Error: --update-flake must be the only argument." >&2
+      echo "Error: --update-nix-flake must be the only argument." >&2
       exit 1
     fi
   fi
 
   case "$1" in
-    --update-flake)
-      update_flake
+    --update-nix-flake)
+      update_nix_flake
       ;;
     *)
       gradle_build "$@"

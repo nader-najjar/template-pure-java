@@ -24,5 +24,5 @@
 
 ### Updating Nix `nixpkgs` Version
 * Modify the version of `inputs.nixpkgs.url` in the `flake.nix` file to the desired version, according to https://status.nixos.org
-* Run `./universal-build --update-flake` to update the `flake.lock` lockfile
+* Run `./universal-build --update-nix-flake` to update the `flake.lock` lockfile
 * Commit both files to version control
