@@ -21,6 +21,7 @@
 
             shellHook = ''
               export JAVA_HOME=${pkgs.jdk24_headless}
+              export JAVA_TOOL_OPTIONS=--enable-native-access=ALL-UNNAMED
             '';
           };
         });
