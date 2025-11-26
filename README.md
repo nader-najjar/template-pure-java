@@ -1,6 +1,9 @@
 # template-pure-java
 
 
+## Tips
+* Run `echo "alias ub='./universal-build'" >> ~/.zshrc` then `source ~/.zshrc` to make `ub` a quick alias for `./universal-build`
+
 ## Build Tasks
 
 ### `./universal-build build`

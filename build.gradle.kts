@@ -26,6 +26,11 @@ tasks.withType<JavaCompile>().configureEach {
     options.release.set(24)
 }
 
+tasks.named<Delete>("clean") {
+    delete("bin")
+}
+
+
 tasks.test {
     useJUnitPlatform()
     testLogging { events("passed", "skipped", "failed") }

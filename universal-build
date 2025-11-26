@@ -11,19 +11,43 @@ set -eu
 
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 NIX_FLAGS="--extra-experimental-features nix-command --extra-experimental-features flakes"
+SCRIPT_NAME="${0##*/}"
 
-usage() {
-  echo "Usage:" >&2
-  echo "  $0 --update-nix-flake                 # update nix flake lockfile" >&2
-  echo "  $0 <idiomatic-build-task> [tasks...]  # run idiomatic build tasks inside the nix dev shell" >&2
+fail() {
+  if [ "$#" -gt 0 ]; then
+    printf "%s\n" "$@" >&2
+  fi
+  printf '\033[31mBUILD FAILED\033[0m\n' >&2
   exit 1
+}
+
+generate_usage_string() {
+  printf "Usage:\n"
+  printf "  %s --update-nix-flake                 # update nix flake lockfile\n" "$SCRIPT_NAME"
+  printf "  %s <idiomatic-build-task> [tasks...]  # run idiomatic build tasks inside the nix dev shell\n" "$SCRIPT_NAME"
 }
 
 require_nix() {
   if ! command -v nix >/dev/null 2>&1; then
-    echo "Error: Nix is required. Install from https://nix.dev/install-nix" >&2
-    exit 1
+    fail "Error: Nix is required. Install from https://nix.dev/install-nix"
   fi
+}
+
+detect_improper_usage() {
+  if [ "$#" -eq 0 ]; then
+    fail "$(generate_usage_string)"
+  fi
+}
+
+guard_update_flag() {
+  if printf '%s\n' "$@" | grep -q -- '^--update-nix-flake$' && [ "$#" -ne 1 ]; then
+    fail "Error: --update-nix-flake must be the only argument, if it is used."
+  fi
+}
+
+update_nix_flake() {
+  echo "Updating nix flake lock in ${SCRIPT_DIR}"
+  nix ${NIX_FLAGS} flake update "${SCRIPT_DIR}"
 }
 
 print_build_start_log() {
@@ -34,37 +58,24 @@ print_build_start_log() {
   printf "\n"
 }
 
-update_nix_flake() {
-  echo "Updating nix flake lock in ${SCRIPT_DIR}"
-  nix ${NIX_FLAGS} flake update "${SCRIPT_DIR}"
-}
-
-gradle_build() {
-  print_build_start_log "$@"
+gradle_handoff() {
   exec nix ${NIX_FLAGS} develop "${SCRIPT_DIR}" --command sh -c 'cd "$1" && shift && ./gradlew "$@"' _ "${SCRIPT_DIR}" "$@"
 }
 
 main() {
   require_nix
 
-  if [ "$#" -eq 0 ]; then
-    usage
-  fi
+  detect_improper_usage "$@"
 
-  # Guard against misplaced --update-nix-flake so it never reaches the idiomatic build system.
-  if printf '%s\n' "$@" | grep -q -- '^--update-nix-flake$'; then
-    if [ "$#" -ne 1 ]; then
-      echo "Error: --update-nix-flake must be the only argument." >&2
-      exit 1
-    fi
-  fi
+  guard_update_flag "$@"
 
   case "$1" in
     --update-nix-flake)
       update_nix_flake
       ;;
     *)
-      gradle_build "$@"
+      print_build_start_log "$@"
+      gradle_handoff "$@"
       ;;
   esac
 }
