@@ -4,6 +4,7 @@ import io.template.samplebusinesslayer.exceptions.CalculationException;
 import io.template.samplebusinesslayer.models.CalculationRequest;
 import io.template.samplebusinesslayer.models.CalculationResult;
 import com.google.inject.Inject;
+import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +19,8 @@ public class Calculator {
     public Calculator() { }
 
     public CalculationResult calculate(CalculationRequest request) {
-        double result = switch (request.operation().toUpperCase()) {
+        String operation = request.operation().toUpperCase(Locale.ROOT);
+        double result = switch (operation) {
             case "ADD" -> request.operandA() + request.operandB();
             case "SUBTRACT" -> request.operandA() - request.operandB();
             case "MULTIPLY" -> request.operandA() * request.operandB();

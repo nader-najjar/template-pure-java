@@ -12,6 +12,9 @@ Java best practices
 * Compiles the code under `src`
 * Runs unit tests
 
+### `./universal-build spotbugsMain`
+* Runs SpotBugs with strict settings to surface potential defects (reports in `build/reports/spotbugs`)
+
 ### `./universal-build help`
 * Invokes Gradle's help command, showing basic functionality
 

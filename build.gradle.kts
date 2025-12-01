@@ -1,9 +1,13 @@
+import com.github.spotbugs.snom.Confidence
+import com.github.spotbugs.snom.Effort
+import com.github.spotbugs.snom.SpotBugsTask
 import org.gradle.external.javadoc.JavadocMemberLevel
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
 
 plugins {
     id("java")
     id("jacoco")
+    id("com.github.spotbugs") version "6.0.26"
 }
 
 group = "io.template"
@@ -17,6 +21,12 @@ java {
 
 jacoco {
     toolVersion = "0.8.12"
+}
+
+spotbugs {
+    toolVersion.set("4.9.8")
+    effort.set(Effort.MAX)
+    reportLevel.set(Confidence.HIGH)
 }
 
 repositories {
@@ -42,8 +52,12 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-    // TODO jacoco and checkstyle and spotbugs
+    // TODO checkstyle and spotbugs
 }
+
+/**
+ * Gradle Task Configurations
+ */
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
@@ -72,8 +86,16 @@ tasks.test {
 }
 
 tasks.check {
-    dependsOn(tasks.jacocoTestCoverageVerification)
+    dependsOn(
+        tasks.jacocoTestCoverageVerification,
+        tasks.spotbugsMain,
+        tasks.spotbugsTest
+    )
 }
+
+/**
+ * Jacaco Configurations
+ */
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
@@ -93,4 +115,21 @@ tasks.jacocoTestCoverageVerification {
             }
         }
     }
+}
+
+/**
+ * Spotbugs Configurations
+ */
+
+tasks.withType<SpotBugsTask>().configureEach {
+    reports.maybeCreate("xml").required.set(true)
+    reports.maybeCreate("html").required.set(true)
+}
+
+tasks.spotbugsMain {
+    dependsOn(tasks.classes)
+}
+
+tasks.spotbugsTest {
+    dependsOn(tasks.testClasses)
 }
