@@ -24,7 +24,8 @@ fail() {
 generate_usage_string() {
   printf "Usage:\n"
   printf "  %s --update-nix-flake                 # update nix flake lockfile\n" "$SCRIPT_NAME"
-  printf "  %s <idiomatic-build-task> [tasks...]  # run idiomatic build tasks inside the nix dev shell\n" "$SCRIPT_NAME"
+  printf "  %s --print-java-path-for-ide          # Print the Java install path, which can be supplied to your IDE\n" "$SCRIPT_NAME"
+  printf "  %s <idiomatic-build-args>             # run idiomatic build tasks inside the nix dev shell\n" "$SCRIPT_NAME"
 }
 
 require_nix() {
@@ -39,15 +40,35 @@ detect_improper_usage() {
   fi
 }
 
-guard_update_flag() {
-  if printf '%s\n' "$@" | grep -q -- '^--update-nix-flake$' && [ "$#" -ne 1 ]; then
-    fail "Error: --update-nix-flake must be the only argument, if it is used."
+guard_single_arg_flags() {
+  # Ensure single-argument flags are either absent or the only argument, regardless of position.
+  found_flag=""
+  for arg in "$@"; do
+    case "$arg" in
+      --update-nix-flake|--print-java-path-for-ide)
+        if [ -n "$found_flag" ]; then
+          fail "Error: $arg cannot be combined with other single-argument flags."
+        fi
+        found_flag="$arg"
+        ;;
+    esac
+  done
+  if [ -n "$found_flag" ] && [ "$#" -ne 1 ]; then
+    fail "Error: $found_flag must be the only argument, if it is used."
   fi
 }
 
 update_nix_flake() {
   echo "Updating nix flake lock in ${SCRIPT_DIR}"
   nix ${NIX_FLAGS} flake update "${SCRIPT_DIR}"
+}
+
+print_java_path_for_ide() {
+  java_home="$(nix ${NIX_FLAGS} develop "${SCRIPT_DIR}" --command sh -c 'echo "${JAVA_HOME:-}"')"
+  if [ -z "$java_home" ]; then
+    fail "JAVA_HOME is not set inside the nix develop environment; ensure your flake exposes a JDK."
+  fi
+  printf "Java install path to supply to IDE: %s\n" "$java_home"
 }
 
 print_build_start_log() {
@@ -67,11 +88,14 @@ main() {
 
   detect_improper_usage "$@"
 
-  guard_update_flag "$@"
+  guard_single_arg_flags "$@"
 
   case "$1" in
     --update-nix-flake)
       update_nix_flake
+      ;;
+    --print-java-path-for-ide)
+      print_java_path_for_ide
       ;;
     *)
       print_build_start_log "$@"

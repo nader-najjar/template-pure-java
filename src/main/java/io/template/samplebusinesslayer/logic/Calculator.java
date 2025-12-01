@@ -1,0 +1,36 @@
+package io.template.samplebusinesslayer.logic;
+
+import io.template.samplebusinesslayer.exceptions.CalculationException;
+import io.template.samplebusinesslayer.models.CalculationRequest;
+import io.template.samplebusinesslayer.models.CalculationResult;
+import com.google.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Simple calculator service demonstrating business logic.
+ */
+public class Calculator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Calculator.class);
+
+    @Inject
+    public Calculator() { }
+
+    public CalculationResult calculate(CalculationRequest request) {
+        double result = switch (request.operation().toUpperCase()) {
+            case "ADD" -> request.operandA() + request.operandB();
+            case "SUBTRACT" -> request.operandA() - request.operandB();
+            case "MULTIPLY" -> request.operandA() * request.operandB();
+            case "DIVIDE" -> {
+                if (request.operandB() == 0) {
+                    throw new CalculationException("Division by zero");
+                }
+                yield request.operandA() / request.operandB();
+            }
+            default -> throw new CalculationException("Unknown operation: " + request.operation());
+        };
+
+        return new CalculationResult(result, request.operation());
+    }
+}

@@ -1,3 +1,6 @@
+import org.gradle.external.javadoc.JavadocMemberLevel
+import org.gradle.external.javadoc.StandardJavadocDocletOptions
+
 plugins {
     id("java")
 }
@@ -16,22 +19,49 @@ repositories {
 }
 
 dependencies {
+    implementation("org.slf4j:slf4j-api:2.0.17")
+    implementation("ch.qos.logback:logback-classic:1.5.21")
+
+    // TODO: Replace this with micronaut
+    implementation("com.google.inject:guice:7.0.0")
+
+    // TODO: Replace this with micronaut
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.20.1")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1")
+
+    implementation(platform("org.hibernate.validator:hibernate-validator-bom:9.1.0.Final"))
+    implementation("org.hibernate.validator:hibernate-validator")
+    implementation("org.glassfish.expressly:expressly:6.0.0")
+
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    // TODO jacoco and checkstyle and spotbugs
 }
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
-    options.release.set(24)
+}
+
+tasks.withType<Javadoc>().configureEach {
+    (options as StandardJavadocDocletOptions).apply {
+        memberLevel = JavadocMemberLevel.PUBLIC
+        addBooleanOption("Xdoclint:all,-missing", true)
+    }
 }
 
 tasks.named<Delete>("clean") {
     delete("bin")
 }
 
-
 tasks.test {
     useJUnitPlatform()
-    testLogging { events("passed", "skipped", "failed") }
+    reports { junitXml.required = true; html.required = true }
+    testLogging {
+        events("passed", "skipped", "failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showCauses = true
+        showStackTraces = true
+    }
 }
