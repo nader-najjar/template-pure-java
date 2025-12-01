@@ -26,7 +26,8 @@ jacoco {
 spotbugs {
     toolVersion.set("4.9.8")
     effort.set(Effort.MAX)
-    reportLevel.set(Confidence.HIGH)
+    reportLevel.set(Confidence.LOW)
+    excludeFilter.set(file("$projectDir/config/spotbugs/exclude.xml"))
 }
 
 repositories {
