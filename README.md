@@ -59,3 +59,11 @@ Java best practices
 2) Go to `File -> Project Structure -> Project -> SDK -> Add JDK From Disk`, then select the path from step 1
 3) Go to `Settings -> Build, Execution, Deployment -> Build Tools -> Gradle -> Gradle JVM` and specify the same JDK as from step 2
 4) Go to `Settings -> Build, Execution, Deployment -> Build Tools` and check the box for `Sync...`, and select the radio button for `Any changes`
+
+### Visual Studio Code
+1) If it is not already installed, install the extension with unique identifier `vscjava.vscode-java-pack` (the Extension Pack for Java)
+2) Run `./universal-build --print-java-path-for-ide` to get the local nix installation of the java version specified in the flake.
+3) Go to workspace settings JSON (`cmd+shift+p -> Open Workspace Settings (JSON)`) and add the following. By placing this in your workspace settings rather than the user settings, it will ensure you can properly configure this per-project
+  * `"java.jdt.ls.java.home": "path/from/step/2"`
+  * `"java.import.gradle.java.home": "path/from/step/2"`
+  * `"java.configuration.updateBuildConfiguration": "automatic"`

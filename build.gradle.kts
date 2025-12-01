@@ -3,6 +3,7 @@ import org.gradle.external.javadoc.StandardJavadocDocletOptions
 
 plugins {
     id("java")
+    id("jacoco")
 }
 
 group = "io.template"
@@ -12,6 +13,10 @@ java {
     toolchain { languageVersion.set(JavaLanguageVersion.of(24)) }
     withSourcesJar()
     withJavadocJar()
+}
+
+jacoco {
+    toolVersion = "0.8.12"
 }
 
 repositories {
@@ -63,5 +68,29 @@ tasks.test {
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         showCauses = true
         showStackTraces = true
+    }
+}
+
+tasks.check {
+    dependsOn(tasks.jacocoTestCoverageVerification)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.test)
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.80".toBigDecimal()
+            }
+        }
     }
 }
