@@ -3,6 +3,8 @@ package io.template.shared.models;
 import java.time.Instant;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Application input model.
  * Represents the deserialized input received by the application.
@@ -15,9 +17,20 @@ import java.util.List;
  * @param exampleListField Example list field
  */
 public record ApplicationInput(
+
+        @JsonProperty("exampleStringField")
         String exampleStringField,
+
+        @JsonProperty("exampleIntField")
         int exampleIntField,
+
+        @JsonProperty("exampleBooleanField")
         boolean exampleBooleanField,
+
+        @JsonProperty("exampleTimestampField")
         Instant exampleTimestampField,
+
+        @JsonProperty("exampleListField")
         List<String> exampleListField
+
 ) { }

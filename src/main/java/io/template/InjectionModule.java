@@ -17,9 +17,6 @@ import jakarta.validation.ValidatorFactory;
  */
 public class InjectionModule extends AbstractModule {
 
-    @Override
-    protected void configure() { }
-
     @Provides
     @Singleton
     JsonMapper provideJsonMapper() {

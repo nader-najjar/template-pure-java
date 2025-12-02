@@ -1,10 +1,11 @@
 package io.template.samplebusinesslayer.logic;
 
+import java.util.Locale;
+
+import com.google.inject.Inject;
 import io.template.samplebusinesslayer.exceptions.CalculationException;
 import io.template.samplebusinesslayer.models.CalculationRequest;
 import io.template.samplebusinesslayer.models.CalculationResult;
-import com.google.inject.Inject;
-import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

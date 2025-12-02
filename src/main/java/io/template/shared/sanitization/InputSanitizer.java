@@ -1,6 +1,9 @@
 package io.template.shared.sanitization;
 
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.google.inject.Inject;
@@ -8,9 +11,6 @@ import io.template.shared.exceptions.InvalidInputException;
 import io.template.shared.models.ApplicationInput;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Handles input sanitization.

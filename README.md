@@ -11,9 +11,9 @@ Java best practices
 ### `./universal-build build`
 * Compiles the code under `src`
 * Runs unit tests
-
-### `./universal-build spotbugsMain`
-* Runs SpotBugs with strict settings to surface potential defects (reports in `build/reports/spotbugs`)
+* Runs Jacoco
+* Runs Checkstyle
+* Runs SpotBugs
 
 ### `./universal-build help`
 * Invokes Gradle's help command, showing basic functionality
@@ -70,3 +70,18 @@ Java best practices
   * `"java.jdt.ls.java.home": "path/from/step/2"`
   * `"java.import.gradle.java.home": "path/from/step/2"`
   * `"java.configuration.updateBuildConfiguration": "automatic"`
+
+
+## References
+
+### Jackson
+* Jackson Databind Javadoc: https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind/latest/index.html
+* Jackson Databind GitHub README Tutorial: https://github.com/FasterXML/jackson-databind
+* Jackson Databind Wiki (Including Databind-Specific Annotations): https://github.com/FasterXML/jackson-databind/wiki
+* Jackson Annotations Javadoc: https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-annotations/latest/com.fasterxml.jackson.annotation/com/fasterxml/jackson/annotation/package-summary.html
+* Jackson Annotations GitHub README Tutorial: https://github.com/FasterXML/jackson-annotations
+* Jackson Annotations Wiki: https://github.com/FasterXML/jackson-annotations/wiki
+
+### Hibernate
+* Main Documentation Page: https://docs.hibernate.org/validator/9.1/reference/en-US/html_single/
+* Anchor To Available Annotations: https://docs.hibernate.org/validator/9.1/reference/en-US/html_single/#section-builtin-constraints
