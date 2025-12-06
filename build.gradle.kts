@@ -44,6 +44,11 @@ repositories {
     mavenCentral()
 }
 
+dependencyLocking {
+    lockAllConfigurations()
+    lockMode = LockMode.STRICT
+}
+
 dependencies {
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.17")
@@ -164,7 +169,7 @@ tasks.jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = "0.00".toBigDecimal()
+                minimum = "0.80".toBigDecimal()
             }
         }
     }
