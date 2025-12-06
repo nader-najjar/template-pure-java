@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-public final class JsonMapperFactory {
+public final class JsonMapperUtility {
 
-    private JsonMapperFactory() { }
+    public static final JsonMapper MAPPER = createStrictMapper();
+
+    private JsonMapperUtility() { }
 
     public static JsonMapper createStrictMapper() {
         return JsonMapper.builder()

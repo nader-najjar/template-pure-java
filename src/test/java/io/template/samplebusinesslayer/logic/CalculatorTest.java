@@ -41,4 +41,29 @@ class CalculatorTest {
 
         assertThrows(CalculationException.class, () -> calculator.calculate(request));
     }
+
+    @Test
+    void calculatesSubtraction() {
+        CalculationRequest request = new CalculationRequest(10.0, 4.0, "SUBTRACT");
+
+        double result = calculator.calculate(request).result();
+
+        assertEquals(6.0, result);
+    }
+
+    @Test
+    void calculatesMultiplication() {
+        CalculationRequest request = new CalculationRequest(3.0, 4.0, "multiply");
+
+        double result = calculator.calculate(request).result();
+
+        assertEquals(12.0, result);
+    }
+
+    @Test
+    void throwsOnUnknownOperation() {
+        CalculationRequest request = new CalculationRequest(10.0, 5.0, "UNKNOWN");
+
+        assertThrows(CalculationException.class, () -> calculator.calculate(request));
+    }
 }

@@ -1,7 +1,6 @@
-package io.template;
+package io.template.bootstrap.logic;
 
 import com.google.inject.Injector;
-import jakarta.validation.ValidatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,9 +12,7 @@ public final class LifecycleManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LifecycleManager.class);
 
-    private LifecycleManager() {
-        // Prevent instantiation
-    }
+    private LifecycleManager() { }
 
     /**
      * Registers JVM shutdown hooks to clean up resources.
@@ -37,14 +34,9 @@ public final class LifecycleManager {
      */
     private static void cleanupResources(Injector injector) {
         try {
-            ValidatorFactory validatorFactory = injector.getInstance(ValidatorFactory.class);
-            if (validatorFactory != null) {
-                validatorFactory.close();
-                LOGGER.debug("ValidatorFactory closed");
-            }
+            // Pull resources from the injector and close them here to prevent memory leaks
         } catch (Exception e) {
             LOGGER.error("Error during resource cleanup", e);
         }
     }
 }
-

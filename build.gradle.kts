@@ -3,6 +3,9 @@ import com.github.spotbugs.snom.Effort
 import com.github.spotbugs.snom.SpotBugsTask
 import org.gradle.external.javadoc.JavadocMemberLevel
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
+import org.gradle.process.CommandLineArgumentProvider
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 
 plugins {
     id("java")
@@ -42,30 +45,47 @@ repositories {
 }
 
 dependencies {
+    // Logging
     implementation("org.slf4j:slf4j-api:2.0.17")
     implementation("ch.qos.logback:logback-classic:1.5.21")
 
+    // Dependency Injection
     implementation("com.google.inject:guice:7.0.0")
 
+    // JSON `serde`
     implementation("com.fasterxml.jackson.core:jackson-databind:2.20.1")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1")
 
+    // Validators
     implementation(platform("org.hibernate.validator:hibernate-validator-bom:9.1.0.Final"))
     implementation("org.hibernate.validator:hibernate-validator")
     implementation("org.glassfish.expressly:expressly:6.0.0")
 
+    // JUnit
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    // Mockito
+    testImplementation("org.mockito:mockito-core:5.14.2")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.14.2")
+    testRuntimeOnly("net.bytebuddy:byte-buddy-agent:1.15.4")
+
+    // Spotbugs
+    testCompileOnly("com.github.spotbugs:spotbugs-annotations:4.9.8")
 }
 
 /**
- * Gradle Task Configurations
+ * Gradle Compile Task Configurations
  */
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
 }
+
+/**
+ * Gradle Javadoc Task Configurations
+ */
 
 tasks.withType<Javadoc>().configureEach {
     (options as StandardJavadocDocletOptions).apply {
@@ -74,12 +94,35 @@ tasks.withType<Javadoc>().configureEach {
     }
 }
 
+/**
+ * Gradle Clean Task Configurations
+ */
+
 tasks.named<Delete>("clean") {
     delete("bin")
 }
 
+/**
+ * Gradle Test Task Configurations
+ */
+
+val mockitoAgentFiles = configurations.testRuntimeClasspath.map { cp ->
+    cp.filter { it.name.contains("byte-buddy-agent") }
+}
+
+private class MockitoAgentArgumentProvider(
+    @get:InputFiles
+    @get:Optional
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    val agentFiles: Provider<org.gradle.api.file.FileCollection>
+) : CommandLineArgumentProvider {
+    override fun asArguments(): Iterable<String> =
+        agentFiles.get().firstOrNull()?.let { listOf("-javaagent:${it.absolutePath}") } ?: emptyList()
+}
+
 tasks.test {
     useJUnitPlatform()
+    jvmArgumentProviders += MockitoAgentArgumentProvider(mockitoAgentFiles)
     reports { junitXml.required = true; html.required = true }
     testLogging {
         events("passed", "skipped", "failed")
@@ -88,6 +131,10 @@ tasks.test {
         showStackTraces = true
     }
 }
+
+/**
+ * Gradle Check Task Configurations
+ */
 
 tasks.check {
     dependsOn(

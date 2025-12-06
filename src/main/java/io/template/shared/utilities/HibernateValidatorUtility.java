@@ -4,11 +4,13 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 
-public final class HibernateValidatorFactory {
+public final class HibernateValidatorUtility {
 
-    private HibernateValidatorFactory() { }
+    public static final Validator VALIDATOR = createValidator();
 
-    public static Validator createValidator() {
+    private HibernateValidatorUtility() { }
+
+    private static Validator createValidator() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         return factory.getValidator();
     }

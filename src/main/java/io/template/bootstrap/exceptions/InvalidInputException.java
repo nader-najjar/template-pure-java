@@ -1,4 +1,4 @@
-package io.template.shared.exceptions;
+package io.template.bootstrap.exceptions;
 
 /**
  * Thrown when input validation or parsing fails.

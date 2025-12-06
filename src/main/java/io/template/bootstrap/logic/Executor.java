@@ -1,35 +1,35 @@
-package io.template;
+package io.template.bootstrap.logic;
 
 import com.google.inject.Inject;
 import io.template.samplebusinesslayer.logic.Calculator;
 import io.template.samplebusinesslayer.models.CalculationRequest;
-import io.template.shared.configuration.Environment;
 import io.template.shared.models.ApplicationInput;
 import io.template.shared.models.EnvironmentVariables;
-import io.template.shared.sanitization.InputSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Main business logic executor.
- * Contains the core application logic.
  */
 public class Executor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Executor.class);
 
+    private final EnvironmentVariables environmentVariables;
     private final InputSanitizer inputSanitizer;
     private final Calculator calculator;
 
     @Inject
-    public Executor(InputSanitizer inputSanitizer, Calculator calculator) {
+    public Executor(EnvironmentVariables environmentVariables, InputSanitizer inputSanitizer, Calculator calculator) {
+        this.environmentVariables = environmentVariables;
         this.inputSanitizer = inputSanitizer;
         this.calculator = calculator;
     }
 
     public void execute(String[] args) {
-        EnvironmentVariables env = Environment.get();
-        LOGGER.info("Executing with stage: {}, region: {}", env.stage(), env.region());
+        String stage = environmentVariables.stage();
+        String region = environmentVariables.region();
+        LOGGER.info("Executing with stage: {}, region: {}", stage, region);
 
         ApplicationInput input = inputSanitizer.sanitize(args);
         LOGGER.info("Sanitized input: {}", input);

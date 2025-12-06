@@ -1,16 +1,15 @@
-package io.template.shared.sanitization;
-
+package io.template.bootstrap.logic;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.google.inject.Inject;
-import io.template.shared.exceptions.InvalidInputException;
+import io.template.bootstrap.exceptions.InvalidInputException;
 import io.template.shared.models.ApplicationInput;
+import io.template.shared.utilities.HibernateValidatorUtility;
+import io.template.shared.utilities.JsonMapperUtility;
 import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
 
 /**
  * Handles input sanitization.
@@ -18,29 +17,16 @@ import jakarta.validation.Validator;
  */
 public class InputSanitizer {
 
-    private final JsonMapper jsonMapper;
-    private final Validator validator;
-
     @Inject
-    public InputSanitizer(JsonMapper jsonMapper, Validator validator) {
-        this.jsonMapper = jsonMapper;
-        this.validator = validator;
-    }
+    public InputSanitizer() { }
 
-    /**
-     * Parses and validates raw input arguments.
-     *
-     * @param args raw input arguments
-     * @return parsed and validated ApplicationInput
-     * @throws IllegalArgumentException if input is missing or invalid
-     */
     public ApplicationInput sanitize(String[] args) {
         validateArgumentsStructure(args);
         String jsonString = args[0];
 
         ApplicationInput applicationInput;
         try {
-            applicationInput = jsonMapper.readValue(jsonString, ApplicationInput.class);
+            applicationInput = JsonMapperUtility.MAPPER.readValue(jsonString, ApplicationInput.class);
         } catch (JsonProcessingException e) {
             throw new InvalidInputException("Invalid input JSON: ", e);
         }
@@ -56,14 +42,14 @@ public class InputSanitizer {
     }
 
     private void validateDeserializedInput(ApplicationInput input) {
-        Set<ConstraintViolation<ApplicationInput>> violations = validator.validate(input);
+        Set<ConstraintViolation<ApplicationInput>> violations = HibernateValidatorUtility.VALIDATOR.validate(input);
 
         if (!violations.isEmpty()) {
             String errors = violations.stream()
                     .map(v -> v.getPropertyPath() + ": " + v.getMessage())
                     .collect(Collectors.joining(", "));
 
-            throw new InvalidInputException("Validation failed: " + errors);
+            throw new InvalidInputException("Input validation failed: " + errors);
         }
     }
 }
