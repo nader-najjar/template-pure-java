@@ -4,13 +4,15 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.template.bootstrap.injectionmodules.EnvironmentModule;
 import io.template.bootstrap.logic.Executor;
-import io.template.bootstrap.logic.LifecycleManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Application entry point.
- * This class is the sole class that must not have associated unit tests - smoke tests are used in their place.
+ * The following classes must not have associated unit tests - smoke tests are used in their place:
+ *   - `Main.java`
+ *   - `LifecycleManager.java`
+ *   - `bootstrap/injectionmodules/*`
  */
 public final class Main {
 

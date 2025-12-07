@@ -1,4 +1,4 @@
-package io.template.bootstrap.logic;
+package io.template;
 
 import com.google.inject.Injector;
 import org.slf4j.Logger;
