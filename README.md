@@ -4,19 +4,19 @@ Java best practices
 
 &nbsp;
 
-## Local Development Machine Prerequisites
+## 1. Local Development Machine Prerequisites
 * Install Nix as per https://nix.dev/install-nix
   * Nix handles all other requirements so that developer machine setup is as minimal as possible
     * Further, it does not matter what version of Nix you have - it guarantees reproducibility
 
 &nbsp;
 
-## Tips
+## 2. Tips
 * Run `echo "alias ub='./universal-build'" >> ~/.zshrc` then `source ~/.zshrc` to make `ub` a quick alias for `./universal-build`
 
 &nbsp;
 
-## Build Tasks
+## 3. Build Tasks
 
 ### `./universal-build build`
 * Compiles the code under `src`
@@ -33,7 +33,7 @@ Java best practices
 
 &nbsp;
 
-## Workflows
+## 4. Workflows
 
 ### Adding A Java Dependency
 1) Find the coordinates on Maven Central (https://central.sonatype.com) or the library’s docs.
@@ -71,7 +71,7 @@ Java best practices
 
 &nbsp;
 
-## IDE Setup
+## 5. IDE Setup
 
 ### IntelliJ
 1) Run `./universal-build --print-java-path-for-ide` to get the local nix installation of the java version specified in the flake.
@@ -89,7 +89,7 @@ Java best practices
 
 &nbsp;
 
-## References
+## 6. References
 
 ### Nix
 * Installation: https://nix.dev/install-nix
