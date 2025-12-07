@@ -2,6 +2,8 @@
 
 Java best practices
 
+&nbsp;
+
 ## Local Development Machine Prerequisites
 * Install Nix as per https://nix.dev/install-nix
   * Nix handles all other requirements so that developer machine setup is as minimal as possible
