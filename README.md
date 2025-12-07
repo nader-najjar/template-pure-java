@@ -2,6 +2,13 @@
 
 Java best practices
 
+## Local Development Machine Prerequisites
+* Install Nix as per https://nix.dev/install-nix
+  * Nix handles all other requirements so that developer machine setup is as minimal as possible
+    * Further, it does not matter what version of Nix you have - it guarantees reproducibility
+
+&nbsp;
+
 ## Tips
 * Run `echo "alias ub='./universal-build'" >> ~/.zshrc` then `source ~/.zshrc` to make `ub` a quick alias for `./universal-build`
 
@@ -81,6 +88,14 @@ Java best practices
 &nbsp;
 
 ## References
+
+### Nix
+* Installation: https://nix.dev/install-nix
+* Nix Versions: https://status.nixos.org
+* Nix Package Search: https://search.nixos.org/packages
+
+### Maven
+* Maven Central Search: https://central.sonatype.com
 
 ### Jackson
 * Jackson Databind Javadoc: https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind/latest/index.html
