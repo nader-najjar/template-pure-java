@@ -130,7 +130,7 @@ tasks.test {
     jvmArgumentProviders += MockitoAgentArgumentProvider(mockitoAgentFiles)
     reports { junitXml.required = true; html.required = true }
     testLogging {
-        events("passed", "skipped", "failed")
+        events("skipped", "failed")
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         showCauses = true
         showStackTraces = true

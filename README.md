@@ -1,6 +1,6 @@
 # template-pure-java
 
-Java best practices
+Java best practices.
 
 &nbsp;
 
