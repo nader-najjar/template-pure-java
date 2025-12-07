@@ -28,12 +28,12 @@ Java best practices
 1) Find the coordinates on Maven Central (https://central.sonatype.com) or the library’s docs.
 2) Decide path:
    * **If a BOM (Bill of Materials) exists:** add the BOM once as a platform (e.g., `implementation(platform("group:artifact-bom:version"))`), then add the dependency in the right scope, using the same syntax as below but omitting the `:version`.
-   * **If no BOM exists:** add the dependency with an explicit version in the right scope:
-     * `implementation("group:artifact:version")`
-     * `compileOnly("group:artifact:version")`
-     * `annotationProcessor("group:artifact:version")`
-     * `runtimeOnly("group:artifact:version")`
-     * Tests mirror these scopes: `testImplementation`, `testCompileOnly`, `testAnnotationProcessor`, `testRuntimeOnly`
+     * **If no BOM exists:** add the dependency with an explicit version in the right scope:
+       * `implementation("group:artifact:version")`
+       * `compileOnly("group:artifact:version")`
+       * `annotationProcessor("group:artifact:version")`
+       * `runtimeOnly("group:artifact:version")`
+       * Tests mirror these scopes: `testImplementation`, `testCompileOnly`, `testAnnotationProcessor`, `testRuntimeOnly`
 3) Update the gradle lockfile using the workflow below
 4) Run `./universal-build build` to download and verify it resolves; use an IDE “reload Gradle project” if needed.
 
@@ -51,12 +51,12 @@ Java best practices
 
 ### Ensuring Gradle Files Are Up-To-Date
 1) Run `./universal-build wrapper` to update the (this is just a pass-through to `./gradlew wrapper`)
-  * This connects to the internet to reset the local self-contained Gradle files to the factory default of the given version. Note that this keeps the same Gradle version.
-  * This can help if the Gradle files were stale or modified for some reason (for example, IntelliJ's starting Gradle template gives incorrect files in some cases)
+   * This connects to the internet to reset the local self-contained Gradle files to the factory default of the given version. Note that this keeps the same Gradle version.
+   * This can help if the Gradle files were stale or modified for some reason (for example, IntelliJ's starting Gradle template gives incorrect files in some cases)
 
 ### Upgrading Gradle Version
 1) Run `./universal-build wrapper --gradle-version x.y`
-  * This connects to the internet to reset the local self-contained Gradle files to the factory default of the given version.
+   * This connects to the internet to reset the local self-contained Gradle files to the factory default of the given version.
 
 
 ## IDE Setup
@@ -71,9 +71,9 @@ Java best practices
 1) If it is not already installed, install the extension with unique identifier `vscjava.vscode-java-pack` (the Extension Pack for Java)
 2) Run `./universal-build --print-java-path-for-ide` to get the local nix installation of the java version specified in the flake.
 3) Go to workspace settings JSON (`cmd+shift+p -> Open Workspace Settings (JSON)`) and add the following. By placing this in your workspace settings rather than the user settings, it will ensure you can properly configure this per-project
-  * `"java.jdt.ls.java.home": "path/from/step/2"`
-  * `"java.import.gradle.java.home": "path/from/step/2"`
-  * `"java.configuration.updateBuildConfiguration": "automatic"`
+   * `"java.jdt.ls.java.home": "path/from/step/2"`
+   * `"java.import.gradle.java.home": "path/from/step/2"`
+   * `"java.configuration.updateBuildConfiguration": "automatic"`
 
 
 ## References
