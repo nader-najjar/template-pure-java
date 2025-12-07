@@ -5,6 +5,7 @@ Java best practices
 ## Tips
 * Run `echo "alias ub='./universal-build'" >> ~/.zshrc` then `source ~/.zshrc` to make `ub` a quick alias for `./universal-build`
 
+&nbsp;
 
 ## Build Tasks
 
@@ -21,6 +22,7 @@ Java best practices
 ### `./universal-build tasks`
 * Invokes Gradle's tasks command, showing all available tasks
 
+&nbsp;
 
 ## Workflows
 
@@ -58,6 +60,7 @@ Java best practices
 1) Run `./universal-build wrapper --gradle-version x.y`
    * This connects to the internet to reset the local self-contained Gradle files to the factory default of the given version.
 
+&nbsp;
 
 ## IDE Setup
 
@@ -75,6 +78,7 @@ Java best practices
    * `"java.import.gradle.java.home": "path/from/step/2"`
    * `"java.configuration.updateBuildConfiguration": "automatic"`
 
+&nbsp;
 
 ## References
 
