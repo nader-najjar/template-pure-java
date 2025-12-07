@@ -1,8 +1,5 @@
 package io.template.bootstrap.logic;
 
-import java.time.Instant;
-import java.util.List;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.template.bootstrap.exceptions.InvalidInputException;
 import io.template.samplebusinesslayer.logic.Calculator;
@@ -15,6 +12,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static io.template.testsupport.SampleApplicationInputs.exampleApplicationInput;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.inOrder;
@@ -46,23 +44,8 @@ class ExecutorTest {
 
     @Test
     void executesWithValidInput() {
-        String json = """
-                {
-                  "exampleStringField": "test",
-                  "exampleIntField": 1,
-                  "exampleBooleanField": true,
-                  "exampleTimestampField": "2024-01-01T00:00:00Z",
-                  "exampleListField": ["a"]
-                }
-                """;
-        String[] args = new String[]{json};
-        ApplicationInput mockInput = new ApplicationInput(
-                "test",
-                1,
-                true,
-                Instant.parse("2024-01-01T00:00:00Z"),
-                List.of("a")
-        );
+        String[] args = new String[]{"opaque-input"};
+        ApplicationInput mockInput = exampleApplicationInput();
 
         when(inputSanitizer.sanitize(args)).thenReturn(mockInput);
 
@@ -89,23 +72,8 @@ class ExecutorTest {
     )
     @Test
     void executesInCorrectOrder() {
-        String json = """
-                {
-                  "exampleStringField": "test",
-                  "exampleIntField": 1,
-                  "exampleBooleanField": true,
-                  "exampleTimestampField": "2024-01-01T00:00:00Z",
-                  "exampleListField": ["a"]
-                }
-                """;
-        String[] args = new String[]{json};
-        ApplicationInput mockInput = new ApplicationInput(
-                "test",
-                1,
-                true,
-                Instant.parse("2024-01-01T00:00:00Z"),
-                List.of("a")
-        );
+        String[] args = new String[]{"opaque-input"};
+        ApplicationInput mockInput = exampleApplicationInput();
 
         when(inputSanitizer.sanitize(args)).thenReturn(mockInput);
 
@@ -125,7 +93,7 @@ class ExecutorTest {
 
     @Test
     void propagatesExceptionWhenInputSanitizerFails() {
-        String[] args = new String[]{"invalid-json"};
+        String[] args = new String[]{"invalid-input"};
         InvalidInputException exception = new InvalidInputException("Invalid input JSON");
 
         when(inputSanitizer.sanitize(args)).thenThrow(exception);

@@ -7,6 +7,13 @@ import io.template.shared.models.ApplicationInput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static io.template.testsupport.SampleJsonInputs.INVALID_JSON_EMPTY_STRING;
+import static io.template.testsupport.SampleJsonInputs.INVALID_JSON_MALFORMED;
+import static io.template.testsupport.SampleJsonInputs.INVALID_JSON_NOT_JSON;
+import static io.template.testsupport.SampleJsonInputs.INVALID_JSON_WITH_INVALID_TIMESTAMP;
+import static io.template.testsupport.SampleJsonInputs.INVALID_JSON_WITH_NON_NUMERIC_INT_FIELD;
+import static io.template.testsupport.SampleJsonInputs.VALID_JSON_WITH_NULL_STRING_FIELD;
+import static io.template.testsupport.SampleJsonInputs.validInput;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -24,15 +31,14 @@ class InputSanitizerTest {
 
     @Test
     void sanitizesValidInput() {
-        String json = """
-                {
-                  "exampleStringField": "hello",
-                  "exampleIntField": 3,
-                  "exampleBooleanField": true,
-                  "exampleTimestampField": "2024-01-01T00:00:00Z",
-                  "exampleListField": ["a","b"]
-                }
-                """;
+        String json = validInput(
+                "hello",
+                3,
+                true,
+                "2024-01-01T00:00:00Z",
+                "a",
+                "b"
+        );
 
         ApplicationInput input = sanitizer.sanitize(new String[]{json});
 
@@ -45,15 +51,12 @@ class InputSanitizerTest {
 
     @Test
     void sanitizesInputWithFalseBoolean() {
-        String json = """
-                {
-                  "exampleStringField": "test",
-                  "exampleIntField": 0,
-                  "exampleBooleanField": false,
-                  "exampleTimestampField": "2024-01-01T00:00:00Z",
-                  "exampleListField": []
-                }
-                """;
+        String json = validInput(
+                "test",
+                0,
+                false,
+                "2024-01-01T00:00:00Z"
+        );
 
         ApplicationInput input = sanitizer.sanitize(new String[]{json});
 
@@ -86,7 +89,7 @@ class InputSanitizerTest {
     void rejectsInvalidJson() {
         InvalidInputException exception = assertThrows(
                 InvalidInputException.class,
-                () -> sanitizer.sanitize(new String[]{"{"})
+                () -> sanitizer.sanitize(new String[]{INVALID_JSON_MALFORMED})
         );
 
         assertTrue(exception.getMessage().contains("Invalid input JSON"));
@@ -97,7 +100,7 @@ class InputSanitizerTest {
     void rejectsEmptyJsonString() {
         InvalidInputException exception = assertThrows(
                 InvalidInputException.class,
-                () -> sanitizer.sanitize(new String[]{""})
+                () -> sanitizer.sanitize(new String[]{INVALID_JSON_EMPTY_STRING})
         );
 
         assertTrue(exception.getMessage().contains("Invalid input JSON"));
@@ -107,7 +110,7 @@ class InputSanitizerTest {
     void rejectsMalformedJson() {
         InvalidInputException exception = assertThrows(
                 InvalidInputException.class,
-                () -> sanitizer.sanitize(new String[]{"not json at all"})
+                () -> sanitizer.sanitize(new String[]{INVALID_JSON_NOT_JSON})
         );
 
         assertTrue(exception.getMessage().contains("Invalid input JSON"));
@@ -115,19 +118,9 @@ class InputSanitizerTest {
 
     @Test
     void rejectsJsonWithInvalidFieldTypes() {
-        String json = """
-                {
-                  "exampleStringField": "hello",
-                  "exampleIntField": "not-a-number",
-                  "exampleBooleanField": true,
-                  "exampleTimestampField": "2024-01-01T00:00:00Z",
-                  "exampleListField": ["a","b"]
-                }
-                """;
-
         InvalidInputException exception = assertThrows(
                 InvalidInputException.class,
-                () -> sanitizer.sanitize(new String[]{json})
+                () -> sanitizer.sanitize(new String[]{INVALID_JSON_WITH_NON_NUMERIC_INT_FIELD})
         );
 
         assertTrue(exception.getMessage().contains("Invalid input JSON"));
@@ -136,19 +129,9 @@ class InputSanitizerTest {
 
     @Test
     void rejectsJsonWithInvalidTimestampFormat() {
-        String json = """
-                {
-                  "exampleStringField": "hello",
-                  "exampleIntField": 3,
-                  "exampleBooleanField": true,
-                  "exampleTimestampField": "invalid-date",
-                  "exampleListField": ["a","b"]
-                }
-                """;
-
         InvalidInputException exception = assertThrows(
                 InvalidInputException.class,
-                () -> sanitizer.sanitize(new String[]{json})
+                () -> sanitizer.sanitize(new String[]{INVALID_JSON_WITH_INVALID_TIMESTAMP})
         );
 
         assertTrue(exception.getMessage().contains("Invalid input JSON"));
@@ -157,24 +140,20 @@ class InputSanitizerTest {
 
     @Test
     void usesFirstArgWhenMultipleArgsProvided() {
-        String json1 = """
-                {
-                  "exampleStringField": "first",
-                  "exampleIntField": 1,
-                  "exampleBooleanField": true,
-                  "exampleTimestampField": "2024-01-01T00:00:00Z",
-                  "exampleListField": ["a"]
-                }
-                """;
-        String json2 = """
-                {
-                  "exampleStringField": "second",
-                  "exampleIntField": 2,
-                  "exampleBooleanField": false,
-                  "exampleTimestampField": "2024-01-01T00:00:00Z",
-                  "exampleListField": ["b"]
-                }
-                """;
+        String json1 = validInput(
+                "first",
+                1,
+                true,
+                "2024-01-01T00:00:00Z",
+                "a"
+        );
+        String json2 = validInput(
+                "second",
+                2,
+                false,
+                "2024-01-01T00:00:00Z",
+                "b"
+        );
 
         ApplicationInput input = sanitizer.sanitize(new String[]{json1, json2});
 
@@ -184,15 +163,7 @@ class InputSanitizerTest {
 
     @Test
     void handlesJsonWithNullStringField() {
-        String json = """
-                {
-                  "exampleStringField": null,
-                  "exampleIntField": 3,
-                  "exampleBooleanField": true,
-                  "exampleTimestampField": "2024-01-01T00:00:00Z",
-                  "exampleListField": ["a","b"]
-                }
-                """;
+        String json = VALID_JSON_WITH_NULL_STRING_FIELD;
 
         ApplicationInput input = sanitizer.sanitize(new String[]{json});
 
