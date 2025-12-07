@@ -34,8 +34,8 @@ Java best practices
      * `annotationProcessor("group:artifact:version")`
      * `runtimeOnly("group:artifact:version")`
      * Tests mirror these scopes: `testImplementation`, `testCompileOnly`, `testAnnotationProcessor`, `testRuntimeOnly`
-3) Run `./universal-build build` to download and verify it resolves; use an IDE “reload Gradle project” if needed.
-4) Update the gradle lockfile using the workflow below
+3) Update the gradle lockfile using the workflow below
+4) Run `./universal-build build` to download and verify it resolves; use an IDE “reload Gradle project” if needed.
 
 ### Updating Gradle Lockfile
 1) Run `./universal-build dependencies --write-locks`
