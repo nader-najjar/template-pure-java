@@ -1,7 +1,7 @@
 {
   description = "Dev shell for template-pure-java";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
 
   outputs = { self, nixpkgs }:
     let
@@ -13,7 +13,7 @@
         let
           pkgs = import nixpkgs { inherit system; };
 
-          chosen_jdk = pkgs.jdk24_headless;
+          chosen_jdk = pkgs.jdk25_headless;
           chosen_podman = pkgs.podman;
         in
         {
@@ -28,7 +28,7 @@
               export JAVA_HOME=${chosen_jdk}
 
               # On macOS, ensure Podman is usable by bringing up the Podman machine if needed.
-              # This belongs here, rather than the idiomatic build system, since it is toolchain configuration
+              # This belongs here, rather than the idiomatic build system, since it is toolchain configuration.
               if [ "$(uname -s)" = "Darwin" ]; then
                 if ! podman info >/dev/null 2>&1; then
                   echo "Podman is not yet usable from this Nix shell; attempting to initialize and start Podman machine..." >&2

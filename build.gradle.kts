@@ -20,7 +20,7 @@ group = "io.template"
 version = "1.0-SNAPSHOT"
 
 java {
-    toolchain { languageVersion.set(JavaLanguageVersion.of(24)) }
+    toolchain { languageVersion.set(JavaLanguageVersion.of(25)) }
     withSourcesJar()
     withJavadocJar()
 }
@@ -175,6 +175,8 @@ private class MockitoAgentArgumentProvider(
 tasks.test {
     useJUnitPlatform()
     jvmArgumentProviders += MockitoAgentArgumentProvider(mockitoAgentFiles)
+    // Allow Byte Buddy / Mockito to run on newer Java versions (e.g., Java 25)
+    systemProperty("net.bytebuddy.experimental", "true")
     reports { junitXml.required = true; html.required = true }
     testLogging {
         events("skipped", "failed")

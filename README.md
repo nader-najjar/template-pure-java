@@ -25,7 +25,7 @@ Java best practices.
 * Runs Checkstyle
 * Runs SpotBugs
 * Builds an OS image with Podman, set to run the code entrypoint (tagged `<project-name>:latest`)
-* Saves the image as `build/container-image.tar`
+* Saves the image as `build/os-image.tar`
 
 ### `./universal-build clean`
 * Removes build output directories
