@@ -13,19 +13,19 @@
         let
           pkgs = import nixpkgs { inherit system; };
 
-          chosen_jdk = pkgs.jdk25_headless;
-          chosen_podman = pkgs.podman;
+          chosenJdk = pkgs.jdk25_headless;
+          chosenPodman = pkgs.podman;
         in
         {
           # Shell for local + CI builds, used by universal-build
           default = pkgs.mkShell {
             packages = [
-              chosen_jdk
-              chosen_podman
+              chosenJdk
+              chosenPodman
             ];
 
             shellHook = ''
-              export JAVA_HOME=${chosen_jdk}
+              export JAVA_HOME=${chosenJdk}
 
               # On macOS, ensure Podman is usable by bringing up the Podman machine if needed.
               # This belongs here, rather than the idiomatic build system, since it is toolchain configuration.
@@ -56,11 +56,11 @@
           # The Dockerfile snapshots this environment via `nix print-dev-env` and applies it at container startup.
           runtime = pkgs.mkShell {
             packages = [
-              chosen_jdk
+              chosenJdk
             ];
 
             shellHook = ''
-              export JAVA_HOME=${chosen_jdk}
+              export JAVA_HOME=${chosenJdk}
             '';
           };
         });
