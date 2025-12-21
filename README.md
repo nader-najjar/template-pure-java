@@ -24,6 +24,11 @@ Java best practices.
 * Runs Jacoco
 * Runs Checkstyle
 * Runs SpotBugs
+* Builds an OS image with Podman, set to run the code entrypoint (tagged `<project-name>:latest`)
+* Saves the image as `build/container-image.tar`
+
+### `./universal-build clean`
+* Removes build output directories
 
 ### `./universal-build help`
 * Invokes Gradle's help command, showing basic functionality
@@ -57,7 +62,7 @@ Java best practices.
 
 ### Updating Nix `nixpkgs` Version
 1) Modify the version of `inputs.nixpkgs.url` in the `flake.nix` file to the desired version, according to https://status.nixos.org
-2) Run `./universal-build --update-nix-flake` to update the `flake.lock` lockfile
+2) Run `./universal-build --update-nix-flake-lockfile` to update the `flake.lock` lockfile
 3) Commit both files to version control
 
 ### Ensuring Gradle Files Are Up-To-Date

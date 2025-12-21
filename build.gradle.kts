@@ -1,14 +1,16 @@
 import com.github.spotbugs.snom.Confidence
 import com.github.spotbugs.snom.Effort
 import com.github.spotbugs.snom.SpotBugsTask
+import org.gradle.api.tasks.Exec
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.external.javadoc.JavadocMemberLevel
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
 import org.gradle.process.CommandLineArgumentProvider
-import org.gradle.api.tasks.PathSensitive
-import org.gradle.api.tasks.PathSensitivity
 
 plugins {
     id("java")
+    id("application")
     id("jacoco")
     id("checkstyle")
     id("com.github.spotbugs") version "6.0.26"
@@ -49,6 +51,10 @@ dependencyLocking {
     lockMode = LockMode.STRICT
 }
 
+application {
+    mainClass.set("io.template.Main")
+}
+
 dependencies {
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.17")
@@ -81,6 +87,55 @@ dependencies {
 }
 
 /**
+ * Gradle Clean Task Configurations
+ */
+
+tasks.named<Delete>("clean") {
+    delete("bin")
+}
+
+/**
+ * Custom Additions To Build Task
+ *
+ * 1. OS Image Build
+ *     - Uses Podman as the canonical container engine so the build process is the same across dev machines and CI
+ *     - The image is tagged "${rootProject.name}:latest"
+ *     - The image is saved as a tarball to build/container-image.tar
+ *     - Any following steps (i.e. pushing the image to ECR, injecting the tarball to a host, etc) is up to the CI/CD pipeline definition, not the build system
+ */
+
+val containerImageName = "${rootProject.name}:latest"
+
+tasks.register<Exec>("podmanBuildImage") {
+    group = "container"
+    description = "Builds the container image $containerImageName using Podman"
+    dependsOn(tasks.named("installDist"))
+    commandLine("podman", "build", "-t", containerImageName, project.projectDir.absolutePath)
+}
+
+tasks.register<Exec>("podmanSaveImageTar") {
+    group = "container"
+    description = "Saves the container image $containerImageName to build/container-image.tar"
+    dependsOn(tasks.named("podmanBuildImage"))
+    commandLine("podman", "save", "-o", "build/os-image.tar", containerImageName)
+}
+
+tasks.named("build") {
+    finalizedBy("podmanSaveImageTar")
+}
+
+/**
+ * Smoke Test Task
+ */
+
+tasks.register<Exec>("executeOSImageSmokeTest") {
+    group = "container"
+    description = "Runs a short-lived container from $containerImageName to verify it starts"
+    dependsOn(tasks.named("build"))
+    commandLine("podman", "run", "--rm", containerImageName)
+}
+
+/**
  * Gradle Compile Task Configurations
  */
 
@@ -97,14 +152,6 @@ tasks.withType<Javadoc>().configureEach {
         memberLevel = JavadocMemberLevel.PUBLIC
         addBooleanOption("Xdoclint:all,-missing", true)
     }
-}
-
-/**
- * Gradle Clean Task Configurations
- */
-
-tasks.named<Delete>("clean") {
-    delete("bin")
 }
 
 /**

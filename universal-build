@@ -23,7 +23,7 @@ fail() {
 
 generate_usage_string() {
   printf "Usage:\n"
-  printf "  %s --update-nix-flake                 # update nix flake lockfile\n" "$SCRIPT_NAME"
+  printf "  %s --update-nix-flake-lockfile        # update nix flake lockfile\n" "$SCRIPT_NAME"
   printf "  %s --print-java-path-for-ide          # Print the Java install path, which can be supplied to your IDE\n" "$SCRIPT_NAME"
   printf "  %s <idiomatic-build-args>             # run idiomatic build tasks inside the nix dev shell\n" "$SCRIPT_NAME"
 }
@@ -45,7 +45,7 @@ guard_single_arg_flags() {
   found_flag=""
   for arg in "$@"; do
     case "$arg" in
-      --update-nix-flake|--print-java-path-for-ide)
+      --update-nix-flake-lockfile|--print-java-path-for-ide)
         if [ -n "$found_flag" ]; then
           fail "Error: $arg cannot be combined with other single-argument flags."
         fi
@@ -58,13 +58,13 @@ guard_single_arg_flags() {
   fi
 }
 
-update_nix_flake() {
-  echo "Updating nix flake lock in ${SCRIPT_DIR}"
+update_nix_flake_lockfile() {
+  echo "Updating nix flake lockfile in ${SCRIPT_DIR}"
   nix ${NIX_FLAGS} flake update "${SCRIPT_DIR}"
 }
 
 print_java_path_for_ide() {
-  java_home="$(nix ${NIX_FLAGS} develop "${SCRIPT_DIR}" --command sh -c 'echo "${JAVA_HOME:-}"')"
+  java_home="$(nix ${NIX_FLAGS} develop "${SCRIPT_DIR}#default" --command sh -c 'echo "${JAVA_HOME:-}"')"
   if [ -z "$java_home" ]; then
     fail "JAVA_HOME is not set inside the nix develop environment; ensure your flake exposes a JDK."
   fi
@@ -80,7 +80,7 @@ print_build_start_log() {
 }
 
 gradle_handoff() {
-  exec nix ${NIX_FLAGS} develop "${SCRIPT_DIR}" --command sh -c 'cd "$1" && shift && ./gradlew "$@"' _ "${SCRIPT_DIR}" "$@"
+  exec nix ${NIX_FLAGS} develop "${SCRIPT_DIR}#default" --command sh -c 'cd "$1" && shift && ./gradlew --no-daemon "$@"' _ "${SCRIPT_DIR}" "$@"
 }
 
 main() {
@@ -91,8 +91,8 @@ main() {
   guard_single_arg_flags "$@"
 
   case "$1" in
-    --update-nix-flake)
-      update_nix_flake
+    --update-nix-flake-lockfile)
+      update_nix_flake_lockfile
       ;;
     --print-java-path-for-ide)
       print_java_path_for_ide
