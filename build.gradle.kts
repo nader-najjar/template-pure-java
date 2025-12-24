@@ -72,6 +72,9 @@ dependencies {
     implementation("org.hibernate.validator:hibernate-validator")
     implementation("org.glassfish.expressly:expressly:6.0.0")
 
+    // Spotbugs
+    testCompileOnly("com.github.spotbugs:spotbugs-annotations:4.9.8")
+
     // JUnit
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
@@ -81,9 +84,6 @@ dependencies {
     testImplementation("org.mockito:mockito-core:5.14.2")
     testImplementation("org.mockito:mockito-junit-jupiter:5.14.2")
     testRuntimeOnly("net.bytebuddy:byte-buddy-agent:1.15.4")
-
-    // Spotbugs
-    testCompileOnly("com.github.spotbugs:spotbugs-annotations:4.9.8")
 }
 
 /**
@@ -117,18 +117,18 @@ tasks.register<Exec>("podmanSaveImageTar") {
     group = "container"
     description = "Saves the container image $containerImageName to build/container-image.tar"
     dependsOn(tasks.named("podmanBuildImage"))
-    commandLine("podman", "save", "-o", "build/os-image.tar", containerImageName)
+    commandLine("podman", "save", "-o", "build/container-image.tar", containerImageName)
 }
 
 tasks.named("build") {
-    finalizedBy("podmanSaveImageTar")
+    dependsOn(tasks.named("podmanSaveImageTar"))
 }
 
 /**
  * Smoke Test Task
  */
 
-tasks.register<Exec>("executeOSImageSmokeTest") {
+tasks.register<Exec>("executeContainerImageSmokeTest") {
     group = "container"
     description = "Runs a short-lived container from $containerImageName to verify it starts"
     dependsOn(tasks.named("build"))

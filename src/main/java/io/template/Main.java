@@ -30,13 +30,13 @@ public final class Main {
 
             Executor executor = injector.getInstance(Executor.class);
             executor.execute(args);
-        } catch (Exception e) {
-            safeCleanup(e);
+        } catch (Exception exception) {
+            safeCleanup(exception);
             System.exit(1);
         }
     }
 
-    private static void safeCleanup(Exception e) {
-        LOGGER.error("Technical exception occurred: ", e);
+    private static void safeCleanup(Exception exception) {
+        LOGGER.error("Technical exception occurred at software entrypoint level: ", exception);
     }
 }
