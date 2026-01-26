@@ -1,42 +1,51 @@
 package io.template;
 
-import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Manages application lifecycle and resource cleanup.
- * Handles shutdown hooks for AutoCloseable resources managed by Guice.
+ * Manages application lifecycle using the idempotency-based paradigm.
+ * Shutdown hooks ONLY signal termination - cleanup happens in main thread.
+ * See: temp-docs/lifecycle-management-paradigm.md
  */
 public final class LifecycleManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LifecycleManager.class);
+    private static final long SHUTDOWN_GRACE_PERIOD_MS = 10000; // 10 seconds
+
+    private static volatile boolean shutdownRequested = false;
 
     private LifecycleManager() { }
 
     /**
-     * Registers JVM shutdown hooks to clean up resources.
-     *
-     * @param injector the Guice injector containing managed resources
+     * Registers JVM shutdown hook that signals termination request.
+     * Does NOT cleanup resources - that must happen in the main thread.
      */
-    public static void registerShutdownHooks(Injector injector) {
+    public static void registerShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            LOGGER.debug("Shutting down application resources...");
-            cleanupResources(injector);
+            LOGGER.info("Shutdown signal received, requesting graceful shutdown...");
+
+            // ONLY set flag - don't cleanup resources!
+            shutdownRequested = true;
+
+            // Wait briefly for main thread to cleanup gracefully
+            try {
+                Thread.sleep(SHUTDOWN_GRACE_PERIOD_MS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+
+            LOGGER.info("Shutdown hook exiting, JVM will terminate");
+            // JVM terminates after this hook completes
         }));
     }
 
     /**
-     * Cleans up resources that require explicit shutdown.
-     * Extend this method to close additional AutoCloseable resources.
+     * Checks if shutdown has been requested.
      *
-     * @param injector the Guice injector containing managed resources
+     * @return true if shutdown was requested, false otherwise
      */
-    private static void cleanupResources(Injector injector) {
-        try {
-            // Pull resources from the injector and close them here to prevent memory leaks
-        } catch (Exception e) {
-            LOGGER.error("Error during resource cleanup", e);
-        }
+    public static boolean isShutdownRequested() {
+        return shutdownRequested;
     }
 }
