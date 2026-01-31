@@ -79,14 +79,14 @@ Java best practices.
 ## 5. IDE Setup
 
 ### IntelliJ
-1) Open the IntelliJ startup window, click `open`, and select this cloned repository
+1) Open the IntelliJ startup window, click `Open`, and select this cloned repository
 2) Run `./universal-build --print-java-path-for-ide` to get the local nix installation of the java version specified in the flake
 3) Go to `File -> Project Structure -> Project -> SDK -> Add JDK From Disk`, then select the path from step 1
 4) Go to `Settings -> Build, Execution, Deployment -> Build Tools -> Gradle -> Gradle JVM` and specify the same JDK as from step 2
 5) Go to `Settings -> Build, Execution, Deployment -> Build Tools` and check the box for `Sync...`, and select the radio button for `Any changes`
 
 ### Visual Studio Code
-1) Open an empty Visual Studio Code startup window
+1) Open an empty Visual Studio Code startup window (important!!)
 2) If it is not already installed, install the extension with unique identifier `vscjava.vscode-java-pack` (the Extension Pack for Java)
 3) Click `File -> Add Folder to Workspace` and select this cloned repository
 4) Run `./universal-build --print-java-path-for-ide` to get the local nix installation of the java version specified in the flake
