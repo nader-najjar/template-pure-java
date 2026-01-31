@@ -78,12 +78,15 @@ Java best practices.
 
 ## 5. IDE Setup
 
-### IntelliJ
-1) Open the IntelliJ startup window, click `Open`, and select this cloned repository
-2) Run `./universal-build --print-java-path-for-ide` to get the local nix installation of the java version specified in the flake
-3) Go to `File -> Project Structure -> Project -> SDK -> Add JDK From Disk`, then select the path from step 1
-4) Go to `Settings -> Build, Execution, Deployment -> Build Tools -> Gradle -> Gradle JVM` and specify the same JDK as from step 2
-5) Go to `Settings -> Build, Execution, Deployment -> Build Tools` and check the box for `Sync...`, and select the radio button for `Any changes`
+### IntelliJ IDEA Ultimate
+1) Open the IntelliJ welcome splash screen, and make sure the `Multi-Project Workspace` plugin is installed (https://plugins.jetbrains.com/plugin/24765-multi-project-workspace)
+2) Click `New Project` and select type `Workspace`
+3) Add this cloned repository as a project under `Workspace Projects -> Add Projects`
+4) Run `./universal-build --print-java-path-for-ide` to get the local nix installation of the java version specified in the flake
+5) Go to `File -> Project Structure -> Project -> SDK -> Add JDK From Disk`, then select the path from step 1
+6) Go to `Settings -> Build, Execution, Deployment -> Build Tools -> Gradle -> Gradle JVM` and specify the same JDK as from step 2
+7) Go to `Settings -> Build, Execution, Deployment -> Build Tools` and check the box for `Sync...`, and select the radio button for `Any changes`
+8) Correctly configure the project structure under File -> Project Structure -> Modules (mark sources, tests, etc.)
 
 ### Visual Studio Code
 1) Open an empty Visual Studio Code startup window (important!!)
