@@ -91,12 +91,12 @@ Java best practices.
 ### Visual Studio Code
 1) Open an empty Visual Studio Code startup window (important!!)
 2) If it is not already installed, install the extension with unique identifier `vscjava.vscode-java-pack` (the Extension Pack for Java)
-3) Click `File -> Add Folder to Workspace` and select this cloned repository
-4) Run `./universal-build --print-java-path-for-ide` to get the local nix installation of the java version specified in the flake
-5) Go to folder settings JSON (`cmd+shift+p -> Preferences: Open Folder Settings (JSON)`), select the folder root that was added in step 3, and add the following. By placing this in your folder settings rather than the user/workspace settings, it will ensure you can properly configure this per-repository
-   * `"java.jdt.ls.java.home": "path/from/step/2"`
-   * `"java.import.gradle.java.home": "path/from/step/2"`
+3) Run `./universal-build --print-java-path-for-ide` to get the local nix installation of the java version specified in the flake
+4) Go to folder settings JSON (`cmd+shift+p -> Preferences: Open Folder Settings (JSON)`), select the folder root, and add the following. By placing this in your folder settings rather than the user/workspace settings, it will ensure you can properly configure this per-repository
+   * `"java.jdt.ls.java.home": "path/from/step/3"`
+   * `"java.import.gradle.java.home": "path/from/step/3"`
    * `"java.configuration.updateBuildConfiguration": "automatic"`
+5) Click `File -> Add Folder to Workspace` and select this cloned repository
 
 &nbsp;
 
