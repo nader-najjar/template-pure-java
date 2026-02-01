@@ -80,23 +80,23 @@ Java best practices.
 
 ### IntelliJ IDEA Ultimate
 1) Open the IntelliJ welcome splash screen, and make sure the `Multi-Project Workspace` plugin is installed (https://plugins.jetbrains.com/plugin/24765-multi-project-workspace)
-2) Click `New Project` and select type `Workspace`
-3) Add this cloned repository as a project under `Workspace Projects -> Add Projects`
-4) Run `./universal-build --print-java-path-for-ide` to get the local nix installation of the java version specified in the flake
-5) Go to `File -> Project Structure -> Project -> SDK -> Add JDK From Disk`, then select the path from step 1
-6) Go to `Settings -> Build, Execution, Deployment -> Build Tools -> Gradle -> Gradle JVM` and specify the same JDK as from step 2
+2) Click `New Project` and select type `Workspace`, don't add any projects yet, and click `Create`
+3) Run `./universal-build --print-java-path-for-ide` to get the local nix installation of the java version specified in the flake
+4) Go to `File -> Project Structure -> Project -> SDK -> Add JDK From Disk`, then select the path from step 3
+5) Right click the workspace in the project view and click `Add Projects to Workspace` and select this cloned repository folder
+6) Go to `Settings -> Build, Execution, Deployment -> Build Tools -> Gradle -> Gradle JVM` and specify the same JDK as from step 4
 7) Go to `Settings -> Build, Execution, Deployment -> Build Tools` and check the box for `Sync...`, and select the radio button for `Any changes`
 8) Correctly configure the project structure under File -> Project Structure -> Modules (mark sources, tests, etc.)
 
 ### Visual Studio Code
 1) Open an empty Visual Studio Code startup window (important!!)
 2) If it is not already installed, install the extension with unique identifier `vscjava.vscode-java-pack` (the Extension Pack for Java)
-3) Click `File -> Add Folder to Workspace` and select this cloned repository
-4) Run `./universal-build --print-java-path-for-ide` to get the local nix installation of the java version specified in the flake
-5) Go to folder settings JSON (`cmd+shift+p -> Preferences: Open Folder Settings (JSON)`), select the folder root that was added in step 3, and add the following. By placing this in your folder settings rather than the user/workspace settings, it will ensure you can properly configure this per-repository
-   * `"java.jdt.ls.java.home": "path/from/step/2"`
-   * `"java.import.gradle.java.home": "path/from/step/2"`
+3) Run `./universal-build --print-java-path-for-ide` to get the local nix installation of the java version specified in the flake
+4) Go to folder settings JSON (`cmd+shift+p -> Preferences: Open Folder Settings (JSON)`), select the folder root, and add the following. By placing this in your folder settings rather than the user/workspace settings, it will ensure you can properly configure this per-repository
+   * `"java.jdt.ls.java.home": "path/from/step/3"`
+   * `"java.import.gradle.java.home": "path/from/step/3"`
    * `"java.configuration.updateBuildConfiguration": "automatic"`
+5) Click `File -> Add Folder to Workspace` and select this cloned repository
 
 &nbsp;
 
