@@ -80,7 +80,7 @@ Java best practices.
 
 ### IntelliJ IDEA Ultimate
 1) Open the IntelliJ welcome splash screen, and make sure the `Multi-Project Workspace` plugin is installed (https://plugins.jetbrains.com/plugin/24765-multi-project-workspace)
-2) Click `New Project` and select type `Workspace`
+2) Click `New Project` and select type `Workspace`, don't add any projects yet, and click `Create`
 3) Run `./universal-build --print-java-path-for-ide` to get the local nix installation of the java version specified in the flake
 4) Go to `File -> Project Structure -> Project -> SDK -> Add JDK From Disk`, then select the path from step 3
 5) Right click the workspace in the project view and click `Add Projects to Workspace` and select this cloned repository folder
