@@ -83,7 +83,7 @@ Java best practices.
 2) Click `New Project` and select type `Workspace`
 3) Run `./universal-build --print-java-path-for-ide` to get the local nix installation of the java version specified in the flake
 4) Go to `File -> Project Structure -> Project -> SDK -> Add JDK From Disk`, then select the path from step 3
-5) Right click the workspace in the project view and click `Add` and select this cloned repository folder
+5) Right click the workspace in the project view and click `Add Projects to Workspace` and select this cloned repository folder
 6) Go to `Settings -> Build, Execution, Deployment -> Build Tools -> Gradle -> Gradle JVM` and specify the same JDK as from step 4
 7) Go to `Settings -> Build, Execution, Deployment -> Build Tools` and check the box for `Sync...`, and select the radio button for `Any changes`
 8) Correctly configure the project structure under File -> Project Structure -> Modules (mark sources, tests, etc.)
