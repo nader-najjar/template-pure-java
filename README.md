@@ -51,14 +51,12 @@ Java best practices.
 ### Adding A Java Dependency
 
 1) Find the coordinates on Maven Central (<https://central.sonatype.com>) or the library’s docs.
-2) Decide path:
-   * **If a BOM (Bill of Materials) exists:** add the BOM once as a platform (e.g., `implementation(platform("group:artifact-bom:version"))`), then add the dependency in the right scope, using the same syntax as below but omitting the `:version`.
-     * **If no BOM exists:** add the dependency with an explicit version in the right scope:
-       * `implementation("group:artifact:version")`
-       * `compileOnly("group:artifact:version")`
-       * `annotationProcessor("group:artifact:version")`
-       * `runtimeOnly("group:artifact:version")`
-       * Tests mirror these scopes: `testImplementation`, `testCompileOnly`, `testAnnotationProcessor`, `testRuntimeOnly`
+2) Add the dependency with an explicit version in the right scope:
+   * `implementation("group:artifact:version")`
+   * `compileOnly("group:artifact:version")`
+   * `annotationProcessor("group:artifact:version")`
+   * `runtimeOnly("group:artifact:version")`
+   * Tests mirror these scopes: `testImplementation`, `testCompileOnly`, `testAnnotationProcessor`, `testRuntimeOnly`
 3) Update the Gradle lockfile using the workflow below
 4) Run `./universal-build build` to download and verify it resolves; use an IDE “reload Gradle project” if needed.
 

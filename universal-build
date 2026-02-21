@@ -10,7 +10,7 @@
 set -eu
 
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
-NIX_FLAGS="--extra-experimental-features nix-command --extra-experimental-features flakes"
+NIX_FLAGS="--extra-experimental-features nix-command --extra-experimental-features flakes --option warn-dirty false"
 SCRIPT_NAME="${0##*/}"
 
 fail() {
@@ -80,7 +80,7 @@ print_build_start_log() {
 }
 
 gradle_handoff() {
-  exec nix ${NIX_FLAGS} develop "${SCRIPT_DIR}#default" --command sh -c 'cd "$1" && shift && ./gradlew --no-daemon "$@"' _ "${SCRIPT_DIR}" "$@"
+  exec nix ${NIX_FLAGS} develop "${SCRIPT_DIR}#default" --command sh -c 'cd "$1" && shift && ./gradlew "$@"' _ "${SCRIPT_DIR}" "$@"
 }
 
 main() {

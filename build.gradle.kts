@@ -56,6 +56,11 @@ application {
 }
 
 dependencies {
+    constraints {
+        // Guice pulls in an older Guava that uses sun.misc.Unsafe (terminally deprecated in JDK 25). Force a newer version that migrated to VarHandle, eliminating the warning.
+        implementation("com.google.guava:guava:33.4.8-jre")
+    }
+
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.17")
     implementation("ch.qos.logback:logback-classic:1.5.21")
@@ -81,9 +86,8 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     // Mockito
-    testImplementation("org.mockito:mockito-core:5.14.2")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.14.2")
-    testRuntimeOnly("net.bytebuddy:byte-buddy-agent:1.15.4")
+    testImplementation("org.mockito:mockito-core:5.21.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.21.0")
 }
 
 /**
@@ -158,25 +162,12 @@ tasks.withType<Javadoc>().configureEach {
  * Gradle Test Task Configurations
  */
 
-val mockitoAgentFiles = configurations.testRuntimeClasspath.map { cp ->
-    cp.filter { it.name.contains("byte-buddy-agent") }
-}
-
-private class MockitoAgentArgumentProvider(
-    @get:InputFiles
-    @get:Optional
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    val agentFiles: Provider<org.gradle.api.file.FileCollection>
-) : CommandLineArgumentProvider {
-    override fun asArguments(): Iterable<String> =
-        agentFiles.get().firstOrNull()?.let { listOf("-javaagent:${it.absolutePath}") } ?: emptyList()
-}
-
 tasks.test {
+    // Jacoco appends to the bootstrap classpath for instrumentation, which prevents CDS (Class Data
+    // Sharing) from working and produces a noisy warning. Disable CDS here since it is a startup
+    // optimization for long-lived processes and irrelevant for a short-lived test JVM.
+    jvmArgs("-Xshare:off")
     useJUnitPlatform()
-    jvmArgumentProviders += MockitoAgentArgumentProvider(mockitoAgentFiles)
-    // Allow Byte Buddy / Mockito to run on newer Java versions (e.g., Java 25)
-    systemProperty("net.bytebuddy.experimental", "true")
     reports { junitXml.required = true; html.required = true }
     testLogging {
         events("skipped", "failed")
