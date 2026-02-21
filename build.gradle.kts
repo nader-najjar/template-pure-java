@@ -110,7 +110,7 @@ tasks.register<Exec>("podmanBuildImage") {
     group = "container"
     description = "Builds the container image $containerImageName using Podman"
     dependsOn(tasks.named("installDist"))
-    commandLine("podman", "build", "-t", containerImageName, project.projectDir.absolutePath)
+    commandLine("podman", "build", "-q", "-t", containerImageName, project.projectDir.absolutePath)
 }
 
 tasks.register<Exec>("podmanSaveImageTar") {
