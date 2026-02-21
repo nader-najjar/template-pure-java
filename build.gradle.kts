@@ -145,6 +145,8 @@ tasks.register<Exec>("executeContainerImageSmokeTest") {
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
+    // Enable all javac lint warnings (unused variables, fallthrough, etc.) and treat them as errors
+    options.compilerArgs.addAll(listOf("-Xlint:all", "-Werror"))
 }
 
 /**

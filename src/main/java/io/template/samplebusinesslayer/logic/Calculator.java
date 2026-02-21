@@ -6,15 +6,11 @@ import com.google.inject.Inject;
 import io.template.samplebusinesslayer.exceptions.CalculationException;
 import io.template.samplebusinesslayer.models.CalculationRequest;
 import io.template.samplebusinesslayer.models.CalculationResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Simple calculator service demonstrating business logic.
  */
 public class Calculator {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Calculator.class);
 
     @Inject
     public Calculator() { }
