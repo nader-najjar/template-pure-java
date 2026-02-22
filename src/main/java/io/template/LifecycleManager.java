@@ -1,42 +1,68 @@
 package io.template;
 
-import com.google.inject.Injector;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Manages application lifecycle and resource cleanup.
- * Handles shutdown hooks for AutoCloseable resources managed by Guice.
+ * Manages application lifecycle around shutdown signals.
+ *
+ * <p>The shutdown hook only sets a flag and waits for the main thread to complete.
+ * Resource cleanup is the responsibility of the main thread, not the shutdown hook.
+ * Idempotent operations already guarantee correctness under abrupt termination (SIGKILL);
+ * signal handling only improves gracefulness of shutdown.</p>
+ *
+ * <p>For loop-based applications, check {@link #isShutdownRequested()} to exit the loop
+ * gracefully. For single-pass applications, the flag can be ignored.</p>
  */
 public final class LifecycleManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LifecycleManager.class);
 
-    private LifecycleManager() { }
+    private static final int SHUTDOWN_TIMEOUT_SECONDS = 10;
+
+    private final AtomicBoolean shutdownRequested = new AtomicBoolean(false);
+
+    private final CountDownLatch mainCompleted = new CountDownLatch(1);
 
     /**
-     * Registers JVM shutdown hooks to clean up resources.
-     *
-     * @param injector the Guice injector containing managed resources
+     * Registers a JVM shutdown hook that sets the shutdown flag and waits
+     * for the main thread to signal completion before allowing the JVM to exit.
      */
-    public static void registerShutdownHooks(Injector injector) {
+    public void registerShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            LOGGER.debug("Shutting down application resources...");
-            cleanupResources(injector);
+            LOGGER.debug("Shutdown signal received, waiting for main to complete...");
+            shutdownRequested.set(true);
+            try {
+                boolean completed = mainCompleted.await(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+                if (!completed) {
+                    LOGGER.warn("Main did not complete within {} seconds of shutdown signal",
+                            SHUTDOWN_TIMEOUT_SECONDS);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }));
     }
 
     /**
-     * Cleans up resources that require explicit shutdown.
-     * Extend this method to close additional AutoCloseable resources.
+     * Returns whether a shutdown signal has been received.
+     * Loop-based applications should check this to exit gracefully.
      *
-     * @param injector the Guice injector containing managed resources
+     * @return true if a shutdown signal (e.g., SIGTERM) has been received
      */
-    private static void cleanupResources(Injector injector) {
-        try {
-            // Pull resources from the injector and close them here to prevent memory leaks
-        } catch (Exception e) {
-            LOGGER.error("Error during resource cleanup", e);
-        }
+    public boolean isShutdownRequested() {
+        return shutdownRequested.get();
+    }
+
+    /**
+     * Signals that the main thread has completed execution and cleanup.
+     * This unblocks the shutdown hook, allowing the JVM to exit.
+     */
+    public void signalComplete() {
+        mainCompleted.countDown();
     }
 }

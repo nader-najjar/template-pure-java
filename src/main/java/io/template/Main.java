@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Application entry point.
  * The following classes must not have associated unit tests - smoke tests are used in their place:
- *   - `Main.java`
- *   - `LifecycleManager.java`
- *   - `bootstrap/injectionmodules/*`
+ *   - {@code Main.java}
+ *   - {@code LifecycleManager.java}
+ *   - {@code bootstrap/injectionmodules/*}
  */
 public final class Main {
 
@@ -21,22 +21,39 @@ public final class Main {
     private Main() { }
 
     public static void main(String[] args) {
+        LifecycleManager lifecycleManager = new LifecycleManager();
+        lifecycleManager.registerShutdownHook();
+
+        int exitCode = 0;
+        Injector injector = null;
         try {
-            Injector injector = Guice.createInjector(
+            injector = Guice.createInjector(
                     new EnvironmentModule()
             );
-
-            LifecycleManager.registerShutdownHooks(injector);
 
             Executor executor = injector.getInstance(Executor.class);
             executor.execute(args);
         } catch (Exception exception) {
-            safeCleanup(exception);
-            System.exit(1);
+            LOGGER.error("Technical exception occurred at software entrypoint level: ", exception);
+            exitCode = 1;
+        } finally {
+            cleanupResources(injector);
+            lifecycleManager.signalComplete();
+        }
+
+        if (exitCode != 0) {
+            System.exit(exitCode);
         }
     }
 
-    private static void safeCleanup(Exception exception) {
-        LOGGER.error("Technical exception occurred at software entrypoint level: ", exception);
+    private static void cleanupResources(Injector injector) {
+        if (injector == null) {
+            return;
+        }
+        try {
+            // Pull resources from the injector and close them here to prevent resource leaks
+        } catch (Exception e) {
+            LOGGER.error("Error during resource cleanup", e);
+        }
     }
 }
