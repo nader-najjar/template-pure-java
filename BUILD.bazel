@@ -1,0 +1,184 @@
+load("//tools/lint:linters.bzl", "checkstyle_test", "spotbugs_test")
+load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_test")
+load("@rules_pkg//:pkg.bzl", "pkg_tar")
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_image_index", "oci_load")
+
+package(default_visibility = ["//visibility:private"])
+
+exports_files([
+    "checkstyle.xml",
+    "maven_install.json",
+    "spotbugs-exclude.xml",
+], visibility = ["//tools/lint:__pkg__"])
+
+java_library(
+    name = "app",
+    srcs = glob(
+        ["src/main/java/**/*.java"],
+        exclude = [
+            "src/main/java/io/template/Main.java",
+            "src/main/java/io/template/composition/**/*.java",
+            "src/main/java/io/template/execution/LifecycleManager.java",
+        ],
+    ),
+    deps = [
+        ":lifecycle",
+        "@maven//:com_fasterxml_jackson_core_jackson_annotations",
+        "@maven//:com_fasterxml_jackson_core_jackson_core",
+        "@maven//:com_fasterxml_jackson_core_jackson_databind",
+        "@maven//:com_fasterxml_jackson_datatype_jackson_datatype_jsr310",
+        "@maven//:com_google_guava_guava",
+        "@maven//:com_google_inject_guice",
+        "@maven//:org_glassfish_expressly_expressly",
+        "@maven//:jakarta_validation_jakarta_validation_api",
+        "@maven//:org_hibernate_validator_hibernate_validator",
+        "@maven//:org_slf4j_slf4j_api",
+        "@maven//:software_amazon_awssdk_regions",
+    ],
+)
+
+java_library(
+    name = "lifecycle",
+    srcs = glob(["src/main/java/io/template/execution/LifecycleManager.java"]),
+    deps = ["@maven//:org_slf4j_slf4j_api"],
+)
+
+java_library(
+    name = "configuration",
+    srcs = ["src/main/java/io/template/composition/EnvironmentVariablesFactory.java"] + glob([
+        "src/main/java/io/template/composition/exceptions/**/*.java",
+    ]),
+    deps = [
+        ":app",
+        "@maven//:jakarta_validation_jakarta_validation_api",
+        "@maven//:software_amazon_awssdk_regions",
+    ],
+)
+
+java_library(
+    name = "composition",
+    srcs = glob(["src/main/java/io/template/composition/modules/**/*.java"]),
+    deps = [
+        ":app",
+        ":configuration",
+        "@maven//:com_google_inject_guice",
+    ],
+)
+
+java_library(
+    name = "entrypoint",
+    srcs = ["src/main/java/io/template/Main.java"],
+    deps = [
+        ":app",
+        ":composition",
+        ":lifecycle",
+        "@maven//:com_google_inject_guice",
+        "@maven//:org_slf4j_slf4j_api",
+    ],
+)
+
+java_binary(
+    name = "app_bin",
+    main_class = "io.template.Main",
+    resources = glob(["src/main/resources/**"]),
+    resource_strip_prefix = "src/main/resources",
+    stamp = 0,
+    runtime_deps = [
+        ":entrypoint",
+        "@maven//:ch_qos_logback_logback_classic",
+    ],
+)
+
+java_test(
+    name = "all_tests",
+    srcs = glob(["src/test/java/**/*.java"]),
+    args = [
+        "execute",
+        "--select-package=io.template",
+        "--fail-if-no-tests",
+        "--disable-banner",
+    ],
+    jvm_flags = ["-XX:+EnableDynamicAgentLoading"],
+    main_class = "org.junit.platform.console.ConsoleLauncher",
+    use_testrunner = False,
+    deps = [
+        ":app",
+        ":configuration",
+        "@maven//:com_github_spotbugs_spotbugs_annotations",
+        "@maven//:com_google_inject_guice",
+        "@maven//:org_junit_jupiter_junit_jupiter_api",
+        "@maven//:org_junit_jupiter_junit_jupiter_params",
+        "@maven//:org_mockito_mockito_core",
+        "@maven//:org_mockito_mockito_junit_jupiter",
+        "@maven//:software_amazon_awssdk_regions",
+    ],
+    runtime_deps = [
+        "@maven//:ch_qos_logback_logback_classic",
+        "@maven//:org_junit_platform_junit_platform_console_standalone",
+    ],
+)
+
+pkg_tar(
+    name = "app_layer",
+    srcs = [":app_bin_deploy.jar"],
+    package_dir = "/app",
+)
+
+oci_image(
+    name = "app_image_amd64",
+    base = "@distroless_java25_linux_amd64",
+    cmd = ["/app/app_bin_deploy.jar"],
+    tars = [":app_layer"],
+)
+
+oci_image(
+    name = "app_image_arm64",
+    base = "@distroless_java25_linux_arm64_v8",
+    cmd = ["/app/app_bin_deploy.jar"],
+    tars = [":app_layer"],
+)
+
+oci_image_index(
+    name = "app_image",
+    images = [
+        ":app_image_amd64",
+        ":app_image_arm64",
+    ],
+)
+
+oci_load(
+    name = "container_image",
+    format = "oci",
+    image = ":app_image",
+    repo_tags = ["template-pure-java:latest"],
+)
+
+filegroup(
+    name = "container_tarball",
+    srcs = [":container_image"],
+    output_group = "tarball",
+)
+
+checkstyle_test(
+    name = "checkstyle",
+    srcs = [
+        ":all_tests",
+        ":app",
+        ":composition",
+        ":configuration",
+        ":entrypoint",
+        ":lifecycle",
+    ],
+)
+
+spotbugs_test(
+    name = "spotbugs",
+    srcs = [
+        ":all_tests",
+        ":app",
+        ":composition",
+        ":configuration",
+        ":entrypoint",
+        ":lifecycle",
+    ],
+)
