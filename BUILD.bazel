@@ -1,6 +1,6 @@
 load("//tools/lint:linters.bzl", "checkstyle_test", "spotbugs_test")
 load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_test")
-load("@rules_pkg//:pkg.bzl", "pkg_tar")
+load("@rules_pkg//:pkg.bzl", "pkg_tar", "pkg_zip")
 load("@rules_oci//oci:defs.bzl", "oci_image", "oci_image_index", "oci_load")
 
 package(default_visibility = ["//visibility:private"])
@@ -18,11 +18,10 @@ java_library(
         exclude = [
             "src/main/java/io/template/Main.java",
             "src/main/java/io/template/composition/**/*.java",
-            "src/main/java/io/template/execution/LifecycleManager.java",
+            "src/main/java/io/template/LambdaHandler.java",
         ],
     ),
     deps = [
-        ":lifecycle",
         "@maven//:com_fasterxml_jackson_core_jackson_annotations",
         "@maven//:com_fasterxml_jackson_core_jackson_core",
         "@maven//:com_fasterxml_jackson_core_jackson_databind",
@@ -34,34 +33,18 @@ java_library(
         "@maven//:org_hibernate_validator_hibernate_validator",
         "@maven//:org_slf4j_slf4j_api",
         "@maven//:software_amazon_awssdk_regions",
-    ],
-)
-
-java_library(
-    name = "lifecycle",
-    srcs = glob(["src/main/java/io/template/execution/LifecycleManager.java"]),
-    deps = ["@maven//:org_slf4j_slf4j_api"],
-)
-
-java_library(
-    name = "configuration",
-    srcs = ["src/main/java/io/template/composition/EnvironmentVariablesFactory.java"] + glob([
-        "src/main/java/io/template/composition/exceptions/**/*.java",
-    ]),
-    deps = [
-        ":app",
-        "@maven//:jakarta_validation_jakarta_validation_api",
-        "@maven//:software_amazon_awssdk_regions",
+        "@maven//:software_amazon_awssdk_dynamodb",
     ],
 )
 
 java_library(
     name = "composition",
-    srcs = glob(["src/main/java/io/template/composition/modules/**/*.java"]),
+    srcs = glob(["src/main/java/io/template/composition/**/*.java"]),
     deps = [
         ":app",
-        ":configuration",
         "@maven//:com_google_inject_guice",
+        "@maven//:software_amazon_awssdk_regions",
+        "@maven//:software_amazon_awssdk_dynamodb",
     ],
 )
 
@@ -71,21 +54,54 @@ java_library(
     deps = [
         ":app",
         ":composition",
-        ":lifecycle",
         "@maven//:com_google_inject_guice",
         "@maven//:org_slf4j_slf4j_api",
     ],
 )
 
+java_library(
+    name = "lambda_entrypoint",
+    srcs = ["src/main/java/io/template/LambdaHandler.java"],
+    deps = [
+        ":app",
+        ":composition",
+        "@maven//:com_amazonaws_aws_lambda_java_core",
+        "@maven//:com_google_inject_guice",
+        "@maven//:org_slf4j_slf4j_api",
+    ],
+)
+
+java_library(
+    name = "logging",
+    resources = glob(["src/main/resources/**"]),
+    resource_strip_prefix = "src/main/resources",
+    runtime_deps = ["@maven//:ch_qos_logback_logback_classic"],
+)
+
+# The deploy JAR bundles the handler and its runtime dependencies for Lambda.
+java_binary(
+    name = "lambda_bin",
+    create_executable = False,
+    stamp = 0,
+    runtime_deps = [":lambda_entrypoint", ":logging"],
+)
+
+pkg_zip(
+    name = "lambda_deployment_package",
+    srcs = [":lambda_bin_deploy.jar"],
+    out = "lambda-deployment-package.zip",
+    package_dir = "lib",
+    stamp = 0,
+)
+
 java_binary(
     name = "app_bin",
     main_class = "io.template.Main",
-    resources = glob(["src/main/resources/**"]),
-    resource_strip_prefix = "src/main/resources",
+    jvm_flags = ["-XX:MaxRAMPercentage=75.0"],
     stamp = 0,
     runtime_deps = [
         ":entrypoint",
-        "@maven//:ch_qos_logback_logback_classic",
+        ":logging",
     ],
 )
 
@@ -103,7 +119,7 @@ java_test(
     use_testrunner = False,
     deps = [
         ":app",
-        ":configuration",
+        ":composition",
         "@maven//:com_github_spotbugs_spotbugs_annotations",
         "@maven//:com_google_inject_guice",
         "@maven//:org_junit_jupiter_junit_jupiter_api",
@@ -111,6 +127,7 @@ java_test(
         "@maven//:org_mockito_mockito_core",
         "@maven//:org_mockito_mockito_junit_jupiter",
         "@maven//:software_amazon_awssdk_regions",
+        "@maven//:software_amazon_awssdk_dynamodb",
     ],
     runtime_deps = [
         "@maven//:ch_qos_logback_logback_classic",
@@ -128,6 +145,7 @@ oci_image(
     name = "app_image_amd64",
     base = "@distroless_java25_linux_amd64",
     cmd = ["/app/app_bin_deploy.jar"],
+    env = {"JAVA_TOOL_OPTIONS": "-XX:MaxRAMPercentage=75.0"},
     tars = [":app_layer"],
 )
 
@@ -135,6 +153,7 @@ oci_image(
     name = "app_image_arm64",
     base = "@distroless_java25_linux_arm64_v8",
     cmd = ["/app/app_bin_deploy.jar"],
+    env = {"JAVA_TOOL_OPTIONS": "-XX:MaxRAMPercentage=75.0"},
     tars = [":app_layer"],
 )
 
@@ -165,9 +184,8 @@ checkstyle_test(
         ":all_tests",
         ":app",
         ":composition",
-        ":configuration",
         ":entrypoint",
-        ":lifecycle",
+        ":lambda_entrypoint",
     ],
 )
 
@@ -177,8 +195,7 @@ spotbugs_test(
         ":all_tests",
         ":app",
         ":composition",
-        ":configuration",
         ":entrypoint",
-        ":lifecycle",
+        ":lambda_entrypoint",
     ],
 )

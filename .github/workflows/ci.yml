@@ -25,3 +25,5 @@ jobs:
         run: bazel coverage //:all_tests --combined_report=lcov
       - name: Build multi-platform container archive
         run: bazel build //:container_tarball
+      - name: Build Lambda deployment package
+        run: bazel build //:lambda_deployment_package
