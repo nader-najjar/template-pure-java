@@ -1,13 +1,13 @@
-package io.template.composition;
+package io.template.environment;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import io.template.composition.exceptions.EnvironmentVariableException;
-import io.template.shared.models.EnvironmentVariables;
-import io.template.shared.models.Stage;
+import io.template.environment.exceptions.EnvironmentVariableException;
+import io.template.environment.models.EnvironmentVariables;
+import io.template.environment.models.Stage;
 import io.template.shared.utilities.HibernateValidatorUtility;
 import jakarta.validation.ConstraintViolation;
 import software.amazon.awssdk.regions.Region;
@@ -16,8 +16,9 @@ import software.amazon.awssdk.regions.Region;
  * Creates {@link EnvironmentVariables} instances from raw environment maps.
  * <p>
  * This class contains all logic for extracting, parsing and validating
- * environment variables. The Guice environment module delegates to this factory,
- * so the logic can be tested without going through Guice.
+ * environment variables. The Guice environment module
+ * is intentionally kept thin and delegates to this factory, so the logic
+ * can be tested without going through Guice.
  */
 public final class EnvironmentVariablesFactory {
 
@@ -26,7 +27,8 @@ public final class EnvironmentVariablesFactory {
     public static EnvironmentVariables from(Map<String, String> environment) {
         EnvironmentVariables environmentVariables = new EnvironmentVariables(
                 extractEnum(environment, "STAGE", Stage.class),
-                extractAwsRegion(environment, "AWS_REGION"),
+                extractAWSRegion(environment, "AWS_REGION"),
+                extractString(environment, "CALCULATION_RESULTS_TABLE_NAME"),
                 extractString(environment, "EXAMPLE_STRING_VAR"),
                 extractInt(environment, "EXAMPLE_INT_VAR"),
                 extractBoolean(environment, "EXAMPLE_BOOLEAN_VAR")
@@ -88,7 +90,7 @@ public final class EnvironmentVariablesFactory {
         }
     }
 
-    private static Region extractAwsRegion(Map<String, String> environment, String key) {
+    private static Region extractAWSRegion(Map<String, String> environment, String key) {
         String value = environment.get(key);
         ensureVariableExists(key, value);
 
